@@ -153,10 +153,12 @@
     
     modal.style.display = "none";
     const currentHref = window.location.href;
-    const currentHost = window.location.hostname; 
+    const currentHost = window.location.hostname;
+    
     if(new URLSearchParams(location.search).has('login') && new URLSearchParams(location.search).get('login') === 'true') return;
     const curUrl = encodeURIComponent(currentHref);
     console.log('curUrl', curUrl);
+    
     fetch("https://api.aaaia.cn/api/index/selectRoute?url=" + curUrl, {
         method: "GET",
         headers: {"Content-Type": "application/json"}
@@ -170,14 +172,14 @@
         }
         
         if(redirectUrl) {
-            const channel = currentHost.includes('kanhaoliao.github.io') ? "2" : "1";
             const separator = redirectUrl.includes('?') ? '&' : '?';
-            const finalUrl = `${redirectUrl}${separator}channel=${channel}`;
-            console.log('channel', channel);
+            const finalUrl = `${redirectUrl}${separator}source_domain=${currentHost}`;
+            console.log('source_domain', currentHost);
             
             const newBtn = enterBtn.cloneNode(true);
             enterBtn.replaceWith(newBtn);
-            document.getElementById("enterBtn").addEventListener("click", () => {
+            
+            newBtn.addEventListener("click", () => {
                 location.href = finalUrl;
             });
         }
